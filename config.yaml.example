@@ -1,8 +1,16 @@
 ---
 mqtt:
+  server: glowmqtt.energyhive.com
+  port: 8883
   username: brightuser
   password: brightpass
   topic: SMART/HILD/xxxxxxxx
 influx:
   server: localhost
-  port: 8428
+  port: 8086
+  database: dbname
+  username: dbuser
+  password: dbpass
+ca_certs: /etc/ssl/certs/ca-certificates.crt
+debug: true
+noop: true
