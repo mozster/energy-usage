@@ -7,7 +7,7 @@ import logging
 
 def parse_sep(topic, payload_str):
     """
-    
+
     Credit to https://gist.github.com/ndfred/b373eeafc4f5b0870c1b8857041289a9
 
     :param topic: str Topic SEP payload was received from
@@ -39,11 +39,15 @@ def parse_sep(topic, payload_str):
         logger.warning("Received a payload without expected data")
         return None
 
-    timestamp = datetime.datetime.fromtimestamp(payload["gmtime"], tz=datetime.timezone.utc)
+    timestamp = datetime.datetime.fromtimestamp(
+        payload["gmtime"], tz=datetime.timezone.utc)
     electricity_consumption = _get_metric(["elecMtr", "0702", "04", "00"])
-    electricity_daily_consumption = _get_metric(["elecMtr", "0702", "04", "01"])
-    electricity_weekly_consumption = _get_metric(["elecMtr", "0702", "04", "30"])
-    electricity_monthly_consumption = _get_metric(["elecMtr", "0702", "04", "40"])
+    electricity_daily_consumption = _get_metric(
+        ["elecMtr", "0702", "04", "01"])
+    electricity_weekly_consumption = _get_metric(
+        ["elecMtr", "0702", "04", "30"])
+    electricity_monthly_consumption = _get_metric(
+        ["elecMtr", "0702", "04", "40"])
     electricity_multiplier = _get_metric(["elecMtr", "0702", "03", "01"])
     electricity_divisor = _get_metric(["elecMtr", "0702", "03", "02"])
     electricity_meter = _get_metric(["elecMtr", "0702", "00", "00"])
@@ -56,12 +60,16 @@ def parse_sep(topic, payload_str):
     gas_meter = _get_metric(["gasMtr", "0702", "00", "00"])
     gas_mpan = _get_metric(["gasMtr", "0702", "03", "07"], str)
     device_gid = _get_metric(["gid"], str)
+    device_rssi = _get_metric(["pan", "rssi"])
+    device_lqi = _get_metric(["pan", "lqi"])
+    provider = _get_metric(["elecMtr", "0708", "01", "01"], str)
 
     data = {
         'timestamp': timestamp,
         'tags': {
             'topic': topic,
             'gid': device_gid,
+            'provider': provider
         },
         'electricity': {
             'tags': {
@@ -86,6 +94,13 @@ def parse_sep(topic, payload_str):
                 'meter_reading': gas_meter * gas_multiplier / gas_divisor,
             },
         },
+        'device': {
+            'tags': {},
+            'metrics': {
+                'rssi': device_rssi,
+                'lqi': device_lqi,
+            },
+        },
     }
 
     return data
@@ -94,7 +109,7 @@ def parse_sep(topic, payload_str):
 def usage_to_datapoints(usage):
     datapoints = []
 
-    for utility in ['electricity', 'gas']:
+    for utility in ['electricity', 'gas', 'device']:
         datapoints.append({
             "measurement": utility,
             "tags": {**usage['tags'], **usage[utility]['tags']},
