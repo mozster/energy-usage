@@ -59,7 +59,8 @@ def setup_logging(prog, config):
         logger.setLevel(logging.INFO)
 
     handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('{0}[{1}]: %(levelname)s %(message)s'.format(prog, str(os.getpid())))
+    formatter = logging.Formatter(
+        '{0}[{1}]: %(levelname)s %(message)s'.format(prog, str(os.getpid())))
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
@@ -89,7 +90,9 @@ def main():
     influx_client = InfluxClient(
         server=config['influx']['server'].get(str),
         port=config['influx']['port'].get(int),
-        database='default',
+        database=config['influx']['database'].get(str),
+        username=config['influx']['username'].get(str),
+        password=config['influx']['password'].get(str),
     )
 
     while True:
